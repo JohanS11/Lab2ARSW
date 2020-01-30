@@ -9,5 +9,8 @@
         <module name="ConcurrentPrgExercises-Highlander-Prod-Cons" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ConcurrentPrgExercises-Highlander-Prod-Cons" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
