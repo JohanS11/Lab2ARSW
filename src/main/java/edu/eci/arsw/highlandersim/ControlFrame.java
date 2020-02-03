@@ -20,6 +20,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import java.awt.Color;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntBinaryOperator;
 import javax.swing.JScrollBar;
 
 public class ControlFrame extends JFrame {
@@ -87,18 +89,23 @@ public class ControlFrame extends JFrame {
         JButton btnPauseAndCheck = new JButton("Pause and check");
         btnPauseAndCheck.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
                 /*
 				 * COMPLETAR
                  */
-                int sum = 0;
-                for (Immortal im : immortals) {
-                    sum += im.getHealth();
+                IntBinaryOperator suma = (x,y) -> (x+y);
+                AtomicInteger sum = new AtomicInteger(0);
+                    for (Immortal im : immortals) {
+                        synchronized (im) {
+                            im.pausar();
+                            sum.getAndAccumulate(im.getHealth(), suma);
+
+                    }
+                        statisticsLabel.setText("<html>"+immortals.toString()+"<br>Health sum:"+ sum);
+                        //sum.getAndAccumulate(im.getHealth(), suma);
                 }
 
-                statisticsLabel.setText("<html>"+immortals.toString()+"<br>Health sum:"+ sum);
-                
-                
+
+
 
             }
         });
@@ -112,6 +119,12 @@ public class ControlFrame extends JFrame {
                  * IMPLEMENTAR
                  */
 
+                for (Immortal im : immortals) {
+
+                    synchronized (im) {
+                        im.iniciar();
+                    }
+                }
             }
         });
 
