@@ -37,7 +37,11 @@ Run the application and verify how the ‘pause and check’ option works. Is th
 
 No se cumple el invariante.
 
+![modified](https://github.com/JohanS11/Lab2ARSW/blob/master/img/cons1.png)
+
 Check the operation again (click the button many times). Is the invariant fulfilled or not ?.
 
 Si se cumple el invariante ahora.
+
+![modified](https://github.com/JohanS11/Lab2ARSW/blob/master/img/con2.png)
 
