@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public class Immortal extends Thread {
 
     private ImmortalUpdateReportCallback updateCallback=null;
@@ -12,7 +14,7 @@ public class Immortal extends Thread {
     
     private int defaultDamageValue;
 
-    private final List<Immortal> immortalsPopulation;
+    private final CopyOnWriteArrayList<Immortal> immortalsPopulation;
 
     private final String name;
 
@@ -22,7 +24,7 @@ public class Immortal extends Thread {
     public static Object pantalla = ControlFrame.pantalla;
     private static Object desempate = new Object();
 
-    public Immortal(String name, List<Immortal> immortalsPopulation, int health, int defaultDamageValue, ImmortalUpdateReportCallback ucb) {
+    public Immortal(String name, CopyOnWriteArrayList<Immortal> immortalsPopulation, int health, int defaultDamageValue, ImmortalUpdateReportCallback ucb) {
         super(name);
         this.updateCallback=ucb;
         this.name = name;
@@ -46,7 +48,7 @@ public class Immortal extends Thread {
 
                     }
                 }
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -70,6 +72,15 @@ public class Immortal extends Thread {
             im = immortalsPopulation.get(nextFighterIndex);
 
             this.fight(im);
+            try {
+
+                Thread.sleep(15);
+
+            } catch (InterruptedException e) {
+
+                e.printStackTrace();
+
+            }
         }
 
     }
