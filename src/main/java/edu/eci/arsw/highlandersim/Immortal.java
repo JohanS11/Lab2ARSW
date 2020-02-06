@@ -24,6 +24,10 @@ public class Immortal extends Thread {
     public static Object pantalla = ControlFrame.pantalla;
     private static Object desempate = new Object();
 
+    private static AtomicInteger poblacion;
+
+    private static AtomicInteger pausedThreads = new AtomicInteger(0);
+
     public Immortal(String name, CopyOnWriteArrayList<Immortal> immortalsPopulation, int health, int defaultDamageValue, ImmortalUpdateReportCallback ucb) {
         super(name);
         this.updateCallback=ucb;
@@ -34,29 +38,24 @@ public class Immortal extends Thread {
         this.pause=false;
         this.active=true;
         this.alive=true;
+        this.poblacion = new AtomicInteger(immortalsPopulation.size());
     }
 
     public void run() {
 
-        while (active) {
-            try {
-                synchronized (pantalla){
-                    while(pause){
-                        pantalla.wait();
-                        //Cuando se salga del wait, significa que desde el ControlFrame se ejecutó notifyAll y se despertaron los inmortales
-                        renaudarInmortal();
+        while (true) {
 
+            synchronized(this){
+                while(pause) {
+                    pausedThreads.getAndIncrement();
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+
             }
-            if (getHealth()<=0){
-                morir();
-                immortalsPopulation.remove(this);
-            }
-            
 
             Immortal im;
 
@@ -70,7 +69,11 @@ public class Immortal extends Thread {
             }
 
             im = immortalsPopulation.get(nextFighterIndex);
-
+            if(getHealth() <= 0){
+                poblacion.getAndDecrement();
+                immortalsPopulation.remove(this);
+                break;
+            }
             this.fight(im);
             try {
 
@@ -94,22 +97,14 @@ public class Immortal extends Thread {
                     this.fight(i2,true);
                 }
             }
-        }else if(thisId > i2Id) {
+        }else {
             synchronized (i2) {
                 synchronized (this) {
                     this.fight(i2,true);
                 }
             }
         }
-        else {
-            synchronized (desempate) {
-                synchronized (this) {
-                    synchronized (i2) {
-                        this.fight(i2,true);
-                    }
-                }
-            }
-        }
+
     }
     public void fight(Immortal i2,boolean flag) {
 
@@ -144,11 +139,23 @@ public class Immortal extends Thread {
         this.active=false;
         this.alive=false;
     }
+
+    public static int getPausedThreads(){
+        return pausedThreads.get();
+    }
+
+    public static int getNumInmortales(){
+        return poblacion.get();
+    }
     public void pausarInmortal(){
         this.pause=true;
     }
     public void renaudarInmortal(){
         this.pause=false;
+        pausedThreads.set(0);
+        synchronized (this) {
+            notify();
+        }
     }
 }
 

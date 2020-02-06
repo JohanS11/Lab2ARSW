@@ -85,11 +85,10 @@ public class ControlFrame extends JFrame {
         JButton btnPauseAndCheck = new JButton("Pause and check");
         btnPauseAndCheck.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
+                pausar();
                 int sum = 0;
                 for (Immortal im : immortals) {
                     sum += im.getHealth();
-                    im.pausarInmortal();
                 }
 
                 statisticsLabel.setText("<html>"+immortals.toString()+"<br>Health sum:"+ sum);
@@ -104,10 +103,7 @@ public class ControlFrame extends JFrame {
 
         btnResume.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                synchronized (pantalla){
-                    pantalla.notifyAll();
-                }
-
+                continuar();
             }
         });
 
@@ -124,6 +120,16 @@ public class ControlFrame extends JFrame {
         JButton btnStop = new JButton("STOP");
         btnStop.setForeground(Color.RED);
         toolBar.add(btnStop);
+        btnStop.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                for(Immortal im : immortals){
+                    im.changeHealth(0);
+                }
+                btnStart.setEnabled(true);
+                statisticsLabel.setText("Stopped!");
+
+            }
+        });
 
         scrollPane = new JScrollPane();
         contentPane.add(scrollPane, BorderLayout.CENTER);
@@ -138,6 +144,21 @@ public class ControlFrame extends JFrame {
 
     }
 
+    public void pausar() {
+        for (Immortal i : immortals) {
+            i.pausarInmortal();
+        }
+        while (Immortal.getPausedThreads() < Immortal.getNumInmortales()) {
+            //System.out.println("");
+        }
+    }
+
+    public void continuar() {
+        for (Immortal i : immortals) {
+            i.renaudarInmortal();
+        }
+
+    }
     public CopyOnWriteArrayList<Immortal> setupInmortals() {
 
         ImmortalUpdateReportCallback ucb=new TextAreaUpdateReportCallback(output,scrollPane);
